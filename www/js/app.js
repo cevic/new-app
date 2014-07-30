@@ -6,14 +6,12 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 
-var app = angular.module('hciApp', ['ionic', 'firebase', 'hciApp.controllers', 'hciApp-services',
+var app = angular.module('hciApp', ['ionic', 'firebase', 'ngCordova', 'hciApp.controllers', 'hciApp-services',
     'hciApp-directives', 'hciApp-filters', 'ngAnimate', 'ngTouch', 'angular-gestures']);
-
     var PhoneGapInit = function () {
         this.boot = function () {
             angular.bootstrap(document, ['hciApp']);
         };
-
         if (window.phonegap !== undefined) {
             document.addEventListener('deviceready', function() {
                 this.boot();
@@ -23,34 +21,40 @@ var app = angular.module('hciApp', ['ionic', 'firebase', 'hciApp.controllers', '
             this.boot();
         }
     };
-
     angular.element(document).ready(function() {
         new PhoneGapInit();
     });
-
     app.constant('FORECASTIO_KEY', 'e5fb549e22c9c3c729ce5a5ec0c6dff7')
     .constant('FLICKR_API_KEY', '504fd7414f6275eb5b657ddbfba80a2c')
     .constant('AWS_ACCESS_KEY', 'AKIAIIXJM3G6BRX3W4WQ')
     .constant('AWS_SECRETE_KEY', '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')
     .constant('FIREBASE_URL', 'https://hcicontactmessages.firebaseio.com/')
     .constant('KIMONOLABS', 'PBxXzZKLn1a3GJFK34ang11OgF95uY1k')
-    .filter('int', function() {
+    .filter('int', [function() {
         return function(v) {
             return parseInt(v) || '';
         };
+    }])
+    .config(function($compileProvider){
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
     })
-    .run(['$rootScope','$ionicPlatform','IntroSettings','$state','$location', function($rootScope,$ionicPlatform,IntroSettings,$state,$location) {
+    .run(['$rootScope','$ionicPlatform','IntroSettings','$state','$location', '$cordovaSplashscreen', '$cordovaStatusbar',
+            function($rootScope,$ionicPlatform,IntroSettings,$state,$location,$cordovaSplashscreen,$cordovaStatusbar) {
         $ionicPlatform.ready(function() {
+            setTimeout(function() {
+                $cordovaSplashscreen.hide();
+            }, 2000)
             if(window.StatusBar) {
                 StatusBar.styleDefault();
             }
+            alert("I'm ready!")
         });
-        var intro_page_seen = IntroSettings.getSettings();
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
             if(toState.url == '/intro'){
-                if(intro_page_seen){
-                    console.log("there is intro page");
+                var intro_page_seen = angular.fromJson(localStorage.settings);
+                if (intro_page_seen.showIntroPage){
                     $location.path('/app/home')
+                    console.log(intro_page_seen.showIntroPage)
                 }
                 console.log("To state is ",toState.url)
             }
@@ -61,14 +65,12 @@ var app = angular.module('hciApp', ['ionic', 'firebase', 'hciApp.controllers', '
     })
     .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
         $stateProvider
-
             .state('app', {
                 url: "/app",
                 abstract: true,
                 templateUrl: "templates/menu.html",
                 controller: 'MenuCtrl'
             })
-
             .state('app.intro', {
                 url: '/intro',
                 views: {
@@ -87,7 +89,6 @@ var app = angular.module('hciApp', ['ionic', 'firebase', 'hciApp.controllers', '
                     }
                 }
             })
-
             .state('app.findUs', {
                 url: "/findUs",
                 views: {

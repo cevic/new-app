@@ -204,6 +204,7 @@ z-index: 11;
 }
 */
 /* for map page*/
+
 div [jsselect~=legs] {
     background-color: #fff;
     padding: 5px;
@@ -233,7 +234,18 @@ div .adp-warnbox {
 #directions-panel {
     width: auto;
 }
+/*for testing*/
+.ion_pane_map map {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+}
 
+.ion_pane_map .scroll {
+    height: 100%;
+}
+/*end oftesting map css*/
 #map-canvas{
     height: 100%;
     width: 100%;
@@ -520,11 +532,11 @@ div .adp-warnbox {
 }
 
 
-/*from ionic weather css*/
+/*from ionic weather css
 
 #wrapper {
     background-color: black;
-}
+}*/
 #scroller {
 }
 .bg-image {
@@ -760,7 +772,7 @@ div .adp-warnbox {
 
 
 /*for pages background*/
-.pane, .view{
+#wrapper, .pane, .view{
     background-image: url('../images/generalBackground.jpg') !important;;
     -webkit-background-size: cover;
     -moz-background-size: cover;

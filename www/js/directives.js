@@ -3,7 +3,7 @@
  */
 var appdir = angular.module('hciApp-directives', []);
 
-appdir.directive('audioPlayer', [function(){
+    appdir.directive('audioPlayer', [function(){
     return{
         restrict: 'EA',
         require: ['^ngModel'],
@@ -37,8 +37,7 @@ appdir.directive('audioPlayer', [function(){
         }
     }
 }]);
-
-    appdir.constant('WEATHER_ICONS', {
+    appdir.constant('WEATHER_ICONS', [{
         'partlycloudy': 'ion-ios7-partlysunny-outline',
         'mostlycloudy': 'ion-ios7-partlysunny-outline',
         'cloudy': 'ion-ios7-cloudy-outline',
@@ -48,9 +47,8 @@ appdir.directive('audioPlayer', [function(){
         'clear-day': 'ion-ios7-sunny-outline',
         'nt_clear': 'ion-ios7-moon-outline',
         'clear-night': 'ion-ios7-moon-outline'
-    })
-
-    appdir.directive('weatherIcon', function(WEATHER_ICONS) {
+    }]);
+    appdir.directive('weatherIcon', ['WEATHER_ICONS', function(WEATHER_ICONS) {
         return {
             restrict: 'E',
             replace: true,
@@ -73,9 +71,8 @@ appdir.directive('audioPlayer', [function(){
                 });
             }
         }
-    })
-
-    appdir.directive('currentTime', function($timeout, $filter) {
+    }]);
+    appdir.directive('currentTime', ['$timeout','$filter', function($timeout, $filter) {
         return {
             restrict: 'E',
             replace: true,
@@ -92,9 +89,8 @@ appdir.directive('audioPlayer', [function(){
                 });
             }
         }
-    })
-
-    appdir.directive('currentWeather', function($timeout, $rootScope, Settings) {
+    }]);
+    appdir.directive('currentWeather', ['$timeout','$rootScope','Settings', function($timeout, $rootScope, Settings) {
         return {
             restrict: 'E',
             replace: true,
@@ -176,9 +172,8 @@ appdir.directive('audioPlayer', [function(){
                 }
             }
         }
-    })
-
-    appdir.directive('forecast', function($timeout, $rootScope, Settings) {
+    }]);
+    appdir.directive('forecast', ['$timeout','$rootScope','Settings', function($timeout,$rootScope,Settings) {
         return {
             restrict: 'E',
             replace: true,
@@ -201,9 +196,8 @@ appdir.directive('audioPlayer', [function(){
 
             }
         }
-    })
-
-    appdir.directive('weatherBox', function($timeout) {
+    }]);
+    appdir.directive('weatherBox', ['$timeout', function($timeout) {
         return {
             restrict: 'E',
             replace: true,
@@ -215,9 +209,8 @@ appdir.directive('audioPlayer', [function(){
             link: function($scope, $element, $attr) {
             }
         }
-    })
-
-    appdir.directive('scrollEffects', function() {
+    }]);
+    appdir.directive('scrollEffects', [ function() {
         return {
             restrict: 'A',
             link: function($scope, $element, $attr) {
@@ -244,9 +237,8 @@ appdir.directive('audioPlayer', [function(){
                 });
             }
         }
-    })
-
-    appdir.directive('backgroundCycler', function($compile, $animate) {
+    }]);
+    appdir.directive('backgroundCycler', ['$compile', '$animate', function($compile, $animate) {
         var animate = function($scope, $element, newImageUrl) {
             var child = $element.children()[0];
 
@@ -276,9 +268,8 @@ appdir.directive('audioPlayer', [function(){
                 });
             }
         }
-    })
-
-    appdir.directive('backgroundImage', function($compile, $animate) {
+    }]);
+    appdir.directive('backgroundImage', ['$compile', '$animate', function($compile, $animate) {
         return {
             restrict: 'E',
             template: '<div class="bg-image"></div>',
@@ -290,8 +281,7 @@ appdir.directive('audioPlayer', [function(){
                 }
             }
         }
-    });
-
+    }]);
     appdir.directive('onValidSubmit', ['$parse', '$timeout', function($parse, $timeout) {
         return {
             require: '^form',

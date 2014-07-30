@@ -6,13 +6,22 @@ var appCtrl = angular.module('hciApp.controllers', []);
 appCtrl.controller('MenuCtrl', ['$scope', function($scope){
 
 }]);
-
-appCtrl.controller('IntroCtrl', ['$scope', '$state', '$ionicSlideBoxDelegate', 'IntroSettings',
-    function($scope, $state, $ionicSlideBoxDelegate,IntroSettings) {
-    IntroSettings.save();
+appCtrl.controller('IntroCtrl', ['$scope', '$state', '$ionicSlideBoxDelegate', 'IntroSettings','$cordovaSplashscreen','$cordovaStatusbar',
+    function($scope, $state, $ionicSlideBoxDelegate,IntroSettings,$cordovaSplashscreen,$cordovaStatusbar) {
+        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+        // for form inputs)
+       /* $cordovaSplashscreen.hide();
+        $cordovaStatusbar.overlaysWebView(true);
+        // styles: Default : 0, LightContent: 1, BlackTranslucent: 2, BlackOpaque: 3
+        $cordovaStatusbar.style(1);
+        // supported names: black, darkGray, lightGray, white, gray, red, green,
+        // blue, cyan, yellow, magenta, orange, purple, brown
+        $cordovaStatusbar.styleColor('white');
+        $cordovaStatusbar.show();*/
     // Called to navigate to the main app
     $scope.startApp = function() {
         $state.go('app.home');
+        IntroSettings.save();
     };
     $scope.next = function() {
         $ionicSlideBoxDelegate.next();
@@ -26,23 +35,17 @@ appCtrl.controller('IntroCtrl', ['$scope', '$state', '$ionicSlideBoxDelegate', '
         $scope.slideIndex = index;
     };
     $scope.$on('$routeChangeStart', function(evt, next, curr){
-        $state.go('app.todo')//IntroSettings.getSettings();
+        $state.go('app.todo');
         console.log("next controller is called ", next)
     });
 }]);
+appCtrl.controller('HomeCtrl', ['$scope', '$timeout', '$rootScope','Weather','Geo','Flickr','$ionicModal',
+    '$ionicPlatform','$ionicSideMenuDelegate','$cordovaStatusbar','$cordovaDevice',
+    function($scope, $timeout, $rootScope,Weather, Geo,Flickr,$ionicModal,$ionicPlatform,$ionicSideMenuDelegate,$cordovaStatusbar) {
+        //$cordovaStatusbar.show();
 
-appCtrl.controller('HomeCtrl', ['$scope', '$timeout', '$rootScope', 'Weather', 'Geo', 'Flickr', '$ionicModal', '$ionicPlatform', '$ionicSideMenuDelegate', 'IntroSettings',
-    function($scope, $timeout, $rootScope, Weather, Geo, Flickr, $ionicModal, $ionicPlatform, $ionicSideMenuDelegate,IntroSettings) {
-        $ionicSideMenuDelegate.canDragContent(false)
+        $ionicSideMenuDelegate.canDragContent(false);
         var _this = this;
-        IntroSettings.delete();
-        $ionicPlatform.ready(function() {
-            // Hide the status bar
-            if(window.StatusBar) {
-                StatusBar.hide();
-            }
-        });
-
         $scope.activeBgImageIndex = 0;
 
         this.getBackgroundImage = function(lat, lng, locString) {
@@ -96,15 +99,11 @@ appCtrl.controller('HomeCtrl', ['$scope', '$timeout', '$rootScope', 'Weather', '
                 });
                 _this.getCurrent(lat, lng);
             }, function(error) {
-                navigator.notification.alert('Unable to get current location: ' + error);
+                navigator.notification.alert('Unable to get current location ');
             });
         };
-
         $scope.refreshData();
-
-
     }]);
-
 appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet', '$timeout', '$ionicModal', '$ionicNavBarDelegate', '$location', '$ionicTabsDelegate',
     function($scope, $ionicLoading, $ionicActionSheet, $timeout, $ionicModal, $ionicNavBarDelegate,$location,$ionicTabsDelegate){
         /*Code for email*/
@@ -187,7 +186,6 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
             $scope.mapCanvas = true; // now show the map
             $scope.close = true;
             $scope.stepByStep = true;
-
         }
         $scope.chooseDestination = function(end){ // set destinations
             if($scope.destination !== end){
@@ -201,7 +199,7 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
         $scope.getDirection = function () {
             mapDisplayCtrl();
             $scope.showLoading();
-            /*set the controls to the bottom of the map*/
+             /*set the controls to the bottom of the map*/
             var control = document.getElementById("control"),
                 map,
                 directionsDisplay,
@@ -246,9 +244,7 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
                 if (navigator.geolocation){
                     $scope.locationId = navigator.geolocation.watchPosition(function (position) {
                         var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                        $scope.$apply(function (){
-                            $scope.userLocation= pos;
-                        });
+                        $scope.userLocation= pos;
                         $scope.setDirection("DRIVING");
 
                         // use reverse geocoding to find the users human readable address
@@ -263,9 +259,9 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
                                 } else {
                                     function error () {
                                         if (status === "OVER_QUERY_LIMIT"){
-                                            var errorMessage = "Error. Try again in 5 mins"
-                                        } else {errorMessage = "Error due to: " + status}
-                                        navigator.notification.alert(errorMessage, null, "Error!");
+                                            var errorMessage = "Try again in 5 mins"
+                                        } else {errorMessage = "Something went wrong"}
+                                        navigator.notification.alert(errorMessage, null, "Oops!");
                                         $scope.hideLoading();
                                     }
                                     error()
@@ -325,8 +321,6 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
                 // Retrieve the start and end locations and create a DirectionsRequest
                 directionService.route(request, function(response, status){
                     if (status == google.maps.DirectionsStatus.OK){
-                        var warnings = document.getElementById ("warnings_panel");
-                        warnings.innerHTML = '<b>' + response.routes[0].warnings + '</b>';
                         directionsDisplay.setDirections(response);
                         //showSteps(response); // !! I found that this calling this function here saves the markers permanently.
                     }
@@ -334,9 +328,6 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
 
                 directionsDisplay.setPanel(document.getElementById("directions-panel")); //set the step by step directions on to a div
             }
-
-            // watch if the mode has changed
-            $scope.$watch('selectedOption', function (newValue, oldValue) { $scope.setDirection(); });
 
             function showSteps (directionResult){
                 // For each step, place a marker, and add the text to the marker's
@@ -397,50 +388,31 @@ appCtrl.controller('FindUsCtrl', ['$scope', '$ionicLoading', '$ionicActionSheet'
 
         // handleNoGeolocation Error
         function handleNoGeolocation(errorFlag) {
-            var content;
             if (errorFlag) {
-                content = 'Error: The Geolocation service failed.';
+                var content = 'Error: The Geolocation service failed.';
             } else {
-                content = 'Error: Your browser doesn\'t support geolocation.';
+                var content = 'Error: Your browser doesn\'t support geolocation.';
             }
 
             var options = {
-                map: map,
+                map: $scope.map,
                 position: new google.maps.LatLng(60, 105),
                 content: content
             };
 
             var infowindow = new google.maps.InfoWindow(options);
-            map.setCenter(options.position);
+            $scope.map.setCenter(options.position);
         }
 
-        function iosLoading (){
-            $scope.showLoading = function () {
-                steroids.view.displayLoading();
-            };
-            $scope.hideLoading = function(){
-                steroids.view.removeLoading();
-            }
+        $scope.showLoading = function () {
+            $scope.show = $ionicLoading.show({
+                content: 'Getting current location...',
+                showBackdrop: false
+            })
+        };
+        $scope.hideLoading = function(){
+            $ionicLoading.hide();
         }
-        function othersLoading(){
-            $scope.showLoading = function () {
-                $scope.show = $ionicLoading.show({
-                    content: 'Getting current location...',
-                    showBackdrop: false
-                })
-            };
-            $scope.hideLoading = function(){
-                $ionicLoading.hide();
-            }
-        }
-        ionic.Platform.ready(function(){
-            var device = ionic.Platform.device()
-            if (device.platform === "iOS"){
-                iosLoading()
-            } else {
-                othersLoading()
-            }
-        })
         /*end of code for map/directions*/
         $scope.$on('$destroy', function(){
             $scope.stopWatching();
@@ -549,26 +521,38 @@ appCtrl.controller('Contact_Message_Ctrl', ['$http','$scope', '$stateParams', 'C
             text: "Todo"
         };
     }]);
-
 appCtrl.controller('WordForTodayCtrl', ['$scope', 'HomeCards', '$location', '$timeout',
     function($scope, HomeCards, $location, $timeout) {
         //$scope.cards = { title: 'Swipe down to clear the card', image: 'img/pic.png' }
         $scope.word1 = false;
-        var home = HomeCards.getData().then(function(data){
-            $scope.word = data.results
-            $timeout(function(){
-                if($scope.word) {
-                    $scope.word1 = true;
-                }
-            }, 300);
-            console.log("data is ", data.results.discussion)
-        });
+        function checkWord (){
+            if($scope.word) {
+                $scope.word1 = true;
+            }
+            $timeout.cancel(timer)
+        }
+        var timer
+        if (!sessionStorage.word42day){
+            HomeCards.getData().then(function(data){
+                $scope.word = (sessionStorage.word42today) ? sessionStorage.word42today : data.results
+                timer = $timeout(checkWord, 300);
+                console.log("data is ", data.results.discussion)
+            });
+        } else {
+            var word42day =
+            $scope.word = angular.fromJson(sessionStorage.word42day).results
+            timer = $timeout(checkWord);
+        }
+
         $scope.readMore = function () {
             $location.path('app/word_for_today_full')
         }
 
-    }]);
+        $scope.$on('$destroy', function(){
+            $timeout.cancel(timer)
+        })
 
+    }]);
 appCtrl.controller("PhotoGalCtrl", ["$rootScope", "$scope", "$timeout", "$interval", "$stateParams",
     "$ionicGesture", "$ionicNavBarDelegate", "MyService",
     function($rootScope, $scope, $timeout, $interval, $stateParams, $ionicGesture, $ionicNavBarDelegate, MyService){
@@ -637,11 +621,11 @@ appCtrl.controller("PhotoGalCtrl", ["$rootScope", "$scope", "$timeout", "$interv
             $scope._Index = index;
         };
 
-    }])
-
-appCtrl.controller('PodcastsListsCtrl', ['$scope', 'AWSService', 'MyService', '$timeout', '$ionicLoading', '$filter', 'PodService', 'Player',
-    function($scope, AWSService, MyService, $timeout, $ionicLoading, $filter, PodService, Player){
+    }]);
+appCtrl.controller('PodcastsListsCtrl', ['$scope', 'PodLists', 'AWSService', 'MyService', '$timeout', '$ionicLoading', '$filter', 'PodService', 'Player',
+    function($scope, PodLists, AWSService, MyService, $timeout, $ionicLoading, $filter, PodService, Player){
         /*set the funcion for showing and hiding loading screen*/
+        var podcasts;
         $scope.showLoading = function () {
             $scope.show = $ionicLoading.show({
                 content: 'Getting Messages...',
@@ -654,40 +638,46 @@ appCtrl.controller('PodcastsListsCtrl', ['$scope', 'AWSService', 'MyService', '$
         $scope.player = Player;
         /*List the objects and get their header metadata*/
         var bucket = 'hci-media';
-        if(!podcasts){
-            $scope.showLoading();
-            var podcasts = [];
-            var objectAndKey = {};
-            MyService.listObjects(bucket, 'podcasts/', 'podcasts/').then(function(messages){
-                for (var i=0; i<messages.length; i++){
-                    var key = messages[i].Key;
-                    var cong = {
-                        Bucket: bucket,
-                        Key: key
-                    };
-                    (function(i){
-                        MyService.getObjHead(cong).then(function(obj){
-                            if((obj.Metadata.title !== undefined) && (obj.Metadata.title !== '') && (obj.Metadata.title!== null)){
-                                objectAndKey = {
-                                    object:obj,
-                                    objKey:messages[i].Key
-                                };
-                                podcasts.push(objectAndKey);
-                            }
-                        });
-                    })(i);
-                }
+           $scope.showLoading();
+        $scope.getMessages = function(){
+            PodLists.pods().then(function(obj){
+                podcasts = obj;
+                $scope.messages = $filter('orderBy')(podcasts, 'object.Metadata.date', true);
+                sessionStorage.podsArray = angular.toJson($scope.messages);
+                $scope.hide();
+                $scope.predicate =  'object.Metadata.title';
+                //console.log("messages ",$scope.messages);
+            }, function(error){
+                navigator.notification.alert('Unable to messages', null, "Error");
+                console.log("dondi error is ", error)
+            }, function(percentComplete){
+                console.log("dondi completes in ", percentComplete)
+            }).finally(function() {
+                    // Stop the ion-refresher from spinning
+                    $scope.$broadcast('scroll.refreshComplete');
+                });
+        };
+        var timer_mess
+        if(!sessionStorage.podsArray){
+            timer_mess = $timeout(function(){
+                $scope.getMessages();
+                $timeout.cancel(timer_mess)
+            })
+        } else if(sessionStorage.podsArray){
+            if(angular.fromJson(sessionStorage.podsArray).length < 1){
+                timer_mess = $timeout(function(){
+                    $scope.getMessages();
+                    $timeout.cancel(timer_mess)
+                })
+            } else {
+                podcasts = angular.fromJson(sessionStorage.podsArray)
+                $scope.messages = $filter('orderBy')(podcasts, 'object.Metadata.date', true);
+                $scope.hide();
+            }
 
-            });
         }
-        var timer = $timeout(function(){
-            $scope.messages = $filter('orderBy')(podcasts, 'object.Metadata.date', true);
-            $scope.hide();
-            $scope.predicate =  'object.Metadata.title';
-            console.log("messages ",$scope.messages);
-        }, 4000);
         //Clean up the timer before we kill this controller
-        $scope.$on('$destroy', function() { if (timer) { $timeout.cancel(timer); } });
+        $scope.$on('$destroy', function() { $timeout.cancel()} );
         $scope.playerControl = false;
         $scope.play = function(key, title) {
             var src = 'https://s3-eu-west-1.amazonaws.com/'+bucket+'/'+key;
@@ -699,9 +689,8 @@ appCtrl.controller('PodcastsListsCtrl', ['$scope', 'AWSService', 'MyService', '$
         };
 
     }]);
-
-appCtrl.controller('PodcastsDetailCtrl', ['$scope', '$stateParams', '$filter', 'MyService', '$timeout', '$ionicLoading', 'PodService', 'Player',
-    function($scope, $stateParams, $filter, MyService, $timeout, $ionicLoading, PodService, Player){
+appCtrl.controller('PodcastsDetailCtrl', ['$scope', '$cacheFactory', '$stateParams', '$filter', 'MyService', '$timeout', '$ionicLoading', 'PodService', 'Player',
+    function($scope, $cacheFactory, $stateParams, $filter, MyService, $timeout, $ionicLoading, PodService, Player){
         /*set the defaults*/
         //$scope.imageSrc =PodService.getPic()//'http://placehold.it/350x150';
         $scope.imageSrc = null;
@@ -722,9 +711,11 @@ appCtrl.controller('PodcastsDetailCtrl', ['$scope', '$stateParams', '$filter', '
         $scope.showLoading();
 
         var bucket = 'hci-media';
-        /*filter a particular object based on the ETag, then get the Key and call get object metadata. Then model the url for audio*/
-        MyService.listObjects(bucket, 'podcasts/', 'podcasts/').then(function(messages){
-            function getMessage (){
+        var eTag = $stateParams.todoId;
+        console.log("etag is ", eTag)
+        $scope.getMessage = function(){
+            /*filter a particular object based on the ETag, then get the Key and call get object metadata. Then model the url for audio*/
+            MyService.listObjects(bucket, 'podcasts/', 'podcasts/').then(function(messages){
                 var messageObj = $filter('filter')(messages, {ETag: $stateParams.todoId})[0],
                     key = messageObj.Key,
                     params = {
@@ -733,12 +724,23 @@ appCtrl.controller('PodcastsDetailCtrl', ['$scope', '$stateParams', '$filter', '
                     };
                 MyService.getObjHead(params).then(function(obj){
                     $scope.podcast = obj;
+                    sessionStorage.setItem(eTag, angular.toJson($scope.podcast));
                 });
                 $scope.messageSrc = 'https://s3-eu-west-1.amazonaws.com/'+bucket+'/'+key;
                 $scope.hide();
-            }
-            var timer = $timeout(getMessage, 400)
-            //Clean up the timer before we kill this controller
-            $scope.$on('$destroy', function() { if (timer) { $timeout.cancel(timer); } });
-        })
-    }])
+                //Clean up the timer before we kill this controller
+            });
+        };
+        var timer_mess
+        if(!sessionStorage.getItem(eTag)){
+            timer_mess = $timeout(function(){
+                $scope.getMessage();
+                $timeout.cancel(timer_mess)
+            })
+        } else{
+            var podcast = angular.fromJson(sessionStorage.getItem(eTag))
+            $scope.podcast = podcast;
+            $scope.hide();
+        }
+        $scope.$on('$destroy', function() { if (timer_mess) { $timeout.cancel(timer_mess); } });
+    }]);
